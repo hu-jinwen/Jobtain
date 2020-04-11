@@ -6,8 +6,8 @@ import com.hujinwen.download.entity.seeds.FtpDownloadSeed;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import java.io.RandomAccessFile;
  * Created by joe on 2019/2/15
  */
 public class FtpWorker extends DownloadWorker {
-    private static final Logger logger = LoggerFactory.getLogger(FtpWorker.class);
+    private static final Logger logger = LogManager.getLogger(FtpWorker.class);
 
     public FtpWorker(DownloadSeed seed) throws IOException {
         super(seed instanceof FtpDownloadSeed ? seed : new FtpDownloadSeed(seed), false);

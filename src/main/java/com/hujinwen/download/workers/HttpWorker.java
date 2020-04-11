@@ -1,10 +1,12 @@
 package com.hujinwen.download.workers;
 
+import com.hujinwen.client.HttpClient;
 import com.hujinwen.download.core.DownloadWorker;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
+import com.hujinwen.entity.http.HttpConstants;
 import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +22,7 @@ import java.util.concurrent.Semaphore;
  * http download worker
  */
 public class HttpWorker extends DownloadWorker {
-    private static final Logger logger = LoggerFactory.getLogger(HttpWorker.class);
+    private static final Logger logger = LogManager.getLogger(HttpWorker.class);
 
     public HttpWorker(DownloadSeed seed) throws IOException {
         super(seed, false);
@@ -84,22 +86,22 @@ public class HttpWorker extends DownloadWorker {
             return;
         }
 
-        FetchWeb fetchWeb = createFetchWeb();
+        final HttpClient httpClient = HttpClient.createDefault();
         String start = String.valueOf(info.downloadStart + info.downloadSum);
         String end = info.downloadEnd == 0 ? "" : String.valueOf(info.downloadEnd);
-        fetchWeb.putHeader("Range", "bytes=" + start + "-" + end);
+        httpClient.addHeader("Range", "bytes=" + start + "-" + end);
 
-        InputStream inputStream = fetchWeb.doGetAsStream(seed.getUrl(), null);
+        InputStream inputStream = httpClient.doGetAsStream(seed.getUrl());
         RandomAccessFile outputFile = new RandomAccessFile(seed.getLocalPath() + "/" + seed.getLocalName(), "rw");
         try {
-            Map<String, String> respHeaders = fetchWeb.getRespHeaders();
-            if (respHeaders.containsKey(HttpHeader.CONTENT_RANGE)) {
+            Map<String, String> respHeaders = httpClient.getRespHeaders();
+            if (respHeaders.containsKey(HttpConstants.CONTENT_RANGE)) {
                 downloadFromInputStream(inputStream, outputFile, null);
             } else {
                 downloadFromInputStream(inputStream, outputFile, "skip");
             }
         } finally {
-            fetchWeb.close();
+            httpClient.close();
             outputFile.close();
         }
     }
@@ -110,21 +112,21 @@ public class HttpWorker extends DownloadWorker {
     private boolean checkAndSetLen(String url) throws IOException {
         boolean support = false;
         try (
-                final FetchWeb fetchWeb = createFetchWeb();
+                final HttpClient httpClient = HttpClient.createDefault()
         ) {
-            fetchWeb.putHeader("Range", "bytes=1-");
-            fetchWeb.doGetAsStream(url, null);
-            Map<String, String> respHeaders = fetchWeb.getRespHeaders();
-            if (respHeaders.containsKey(HttpHeader.CONTENT_RANGE)) {
-                String value = respHeaders.get(HttpHeader.CONTENT_RANGE);
+            httpClient.addHeader("Range", "bytes=1-");
+            httpClient.doGetAsStream(url);
+            Map<String, String> respHeaders = httpClient.getRespHeaders();
+            if (respHeaders.containsKey(HttpConstants.CONTENT_RANGE)) {
+                String value = respHeaders.get(HttpConstants.CONTENT_RANGE);
                 info.fileSize = Long.parseLong(value.substring(value.lastIndexOf("/") + 1));
                 support = true;
             } else {
-                info.fileSize = Long.parseLong(respHeaders.get(HttpHeader.CONTENT_LENGTH));
+                info.fileSize = Long.parseLong(respHeaders.get(HttpConstants.CONTENT_RANGE));
             }
-        } catch (URISyntaxException e) {
+        }/* catch (URISyntaxException e) {
             logger.error(e.getMessage(), e);
-        }
+        }*/
         return support;
     }
 

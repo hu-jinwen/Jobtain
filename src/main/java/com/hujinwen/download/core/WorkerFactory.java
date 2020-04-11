@@ -7,8 +7,8 @@ import com.hujinwen.download.workers.Aria2cWorker;
 import com.hujinwen.download.workers.FtpWorker;
 import com.hujinwen.download.workers.HttpWorker;
 import com.hujinwen.download.workers.M3u8Worker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ import java.io.IOException;
  * Create by joe on 2019/1/28
  */
 public abstract class WorkerFactory {
-    private static final Logger logger = LoggerFactory.getLogger(WorkerFactory.class);
+    private static final Logger logger = LogManager.getLogger(WorkerFactory.class);
 
     public DownloadWorker getWorker(DownloadSeed seed) throws IOException {
         DownloadWorker worker = findWorker(seed);

@@ -1,5 +1,6 @@
 package com.hujinwen.download.workers;
 
+import com.hujinwen.client.HttpClient;
 import com.hujinwen.download.core.DownloadInit;
 import com.hujinwen.download.core.DownloadWorker;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
@@ -7,15 +8,14 @@ import com.hujinwen.download.entity.seeds.M3u8DownloadSeed;
 import com.hujinwen.utils.UrlUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
@@ -26,7 +26,7 @@ import java.util.concurrent.Semaphore;
  * m3u8 download worker
  */
 public class M3u8Worker extends DownloadWorker {
-    private static final Logger logger = LoggerFactory.getLogger(M3u8Worker.class);
+    private static final Logger logger = LogManager.getLogger(M3u8Worker.class);
 
     public M3u8Worker(DownloadSeed seed) throws IOException {
         super(seed instanceof M3u8DownloadSeed ? seed : new M3u8DownloadSeed(seed), false);
@@ -47,10 +47,10 @@ public class M3u8Worker extends DownloadWorker {
             return;
         }
         M3u8DownloadSeed seed = (M3u8DownloadSeed) this.seed;
-        FetchWeb fetchWeb = createFetchWeb();
+        final HttpClient httpClient = HttpClient.createDefault();
 
-        String content = fetchWeb.doGetAsStr(seed.getUrl(), null);
-        String redirectUrl = fetchWeb.getHttpResult().getLastRedirectURL();
+        String content = httpClient.doGetAsStr(seed.getUrl());
+        String redirectUrl = httpClient.getLastRedirectUrl();
         if (!StringUtils.isBlank(redirectUrl)) seed.setUrl(redirectUrl);
         if (StringUtils.isBlank(content)) {
             throw new RuntimeException("M3u8 download worker initialize failed! the response content is empty.");
@@ -172,16 +172,16 @@ public class M3u8Worker extends DownloadWorker {
             int err_count = 0;
             while (err_count < DownloadInit.RETRY_TIMES) {
                 try (
-                        final FetchWeb fetchWeb = createFetchWeb()
+                        final HttpClient httpClient = HttpClient.createDefault()
                 ) {
-                    InputStream inputStream = fetchWeb.doGetAsStream(egg, null);
+                    InputStream inputStream = httpClient.doGetAsStream(egg);
                     if (inputStream == null) {
                         throw new SocketException("Connection failed!");
                     }
                     downloadFromInputStream(inputStream, outputFile, "skip");
-                    info.fileSize += fetchWeb.getHttpResult().getContentLength();
+                    info.fileSize += httpClient.getContentLength();
                     break;
-                } catch (SocketTimeoutException | URISyntaxException | SocketException e) {
+                } catch (SocketTimeoutException /*| URISyntaxException*/ | SocketException e) {
                     err_count++;
                     logger.info(RETRY_INFO_TEMP.format(new Object[]{err_count, egg, e.getMessage()}));
                 }

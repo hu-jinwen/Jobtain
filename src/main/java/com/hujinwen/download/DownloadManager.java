@@ -69,18 +69,18 @@ public class DownloadManager {
      * 下载（默认为异步）
      */
     public static DownloadWorker download(DownloadSeed downloadSeed) throws IOException {
-        return download(downloadSeed, true);
+        return download(downloadSeed, false);
     }
 
     /**
      * 下载（默认为同步）
      */
     public static DownloadWorker download(String url, String localPath, String localName) throws IOException {
-        return download(url, localPath, localName, true);
+        return download(url, localPath, localName, false);
     }
 
     public static DownloadWorker download(String url, Map<String, Object> param, String localPath, String localName) throws IOException {
-        return download(url, param, localPath, localName, true);
+        return download(url, param, localPath, localName, false);
     }
 
     /**
