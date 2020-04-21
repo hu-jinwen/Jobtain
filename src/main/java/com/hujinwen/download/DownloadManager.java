@@ -36,11 +36,15 @@ public class DownloadManager {
      * 下载
      *
      * @param downloadSeed 种子
+     * @param threadNum    线程数
      * @param sync         下载是否同步,true 为同步， false 为异步
      */
-    public static DownloadWorker download(DownloadSeed downloadSeed, boolean sync) throws IOException {
+    public static DownloadWorker download(DownloadSeed downloadSeed, int threadNum, boolean sync) throws IOException {
         preprocess(downloadSeed);
         DownloadWorker worker = WORKER_FACTORY.getWorker(downloadSeed);
+        if (threadNum > 0) {
+            worker.setThreadNum(threadNum);
+        }
         if (sync) {
             worker.run();
         } else {
@@ -58,18 +62,18 @@ public class DownloadManager {
      * @param sync      下载是否同步
      */
     public static DownloadWorker download(String url, String localPath, String localName, boolean sync) throws IOException {
-        return download(new DownloadSeed(url, localPath, localName), sync);
+        return download(new DownloadSeed(url, localPath, localName), -1, sync);
     }
 
     public static DownloadWorker download(String url, Map<String, Object> param, String localPath, String localName, boolean sync) throws IOException {
-        return download(new DownloadSeed(url, param, localPath, localName), sync);
+        return download(new DownloadSeed(url, param, localPath, localName), -1, sync);
     }
 
     /**
      * 下载（默认为异步）
      */
     public static DownloadWorker download(DownloadSeed downloadSeed) throws IOException {
-        return download(downloadSeed, false);
+        return download(downloadSeed, -1, false);
     }
 
     /**
@@ -77,6 +81,20 @@ public class DownloadManager {
      */
     public static DownloadWorker download(String url, String localPath, String localName) throws IOException {
         return download(url, localPath, localName, false);
+    }
+
+    /**
+     * 下载（默认为同步）
+     */
+    public static DownloadWorker download(String url, String localPath, int threadNum, String localName) throws IOException {
+        return download(new DownloadSeed(url, localPath, localName), threadNum, false);
+    }
+
+    /**
+     * 下载（默认为同步）
+     */
+    public static DownloadWorker download(String url, String localPath, int threadNum, String localName, boolean sync) throws IOException {
+        return download(new DownloadSeed(url, localPath, localName), threadNum, sync);
     }
 
     public static DownloadWorker download(String url, Map<String, Object> param, String localPath, String localName) throws IOException {

@@ -17,7 +17,7 @@ class DownloadManagerTest {
         String localPath = "/home/joe/Desktop";
         String localName = "";
 
-        final DownloadWorker worker = DownloadManager.download(new DownloadSeed(url, localPath, localName), false);
+        final DownloadWorker worker = DownloadManager.download(new DownloadSeed(url, localPath, localName), -1, false);
         while (!worker.isFinish()) {
             logger.debug("progress -> {}%, speed -> {}kb/s", worker.getProgress() * 100, worker.getSpeed());
             Thread.sleep(1000);
