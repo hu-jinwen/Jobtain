@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 /**
  * Create by hjw on 2019/1/24
@@ -21,7 +20,7 @@ import java.util.Map;
  * TODO 频繁的saveTemp可以用定时/定量save的方式来解决。
  */
 public class DownloadManager {
-    private static WorkerFactory WORKER_FACTORY;
+    private static final WorkerFactory WORKER_FACTORY;
 
     static {
         DownloadInit.init();
@@ -61,10 +60,6 @@ public class DownloadManager {
         return download(new DownloadSeed(url, localPath, localName), sync);
     }
 
-    public static DownloadWorker download(String url, Map<String, Object> param, String localPath, String localName, boolean sync) throws IOException {
-        return download(new DownloadSeed(url, param, localPath, localName), sync);
-    }
-
     /**
      * 下载（默认为异步）
      */
@@ -73,14 +68,10 @@ public class DownloadManager {
     }
 
     /**
-     * 下载（默认为同步）
+     * 下载（默认为异步）
      */
     public static DownloadWorker download(String url, String localPath, String localName) throws IOException {
         return download(url, localPath, localName, false);
-    }
-
-    public static DownloadWorker download(String url, Map<String, Object> param, String localPath, String localName) throws IOException {
-        return download(url, param, localPath, localName, false);
     }
 
     /**

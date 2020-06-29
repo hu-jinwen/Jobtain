@@ -3,6 +3,7 @@ package com.hujinwen.download.workers;
 import com.hujinwen.client.HttpClient;
 import com.hujinwen.download.core.DownloadWorker;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
+import com.hujinwen.download.entity.seeds.HttpDownloadSeed;
 import com.hujinwen.entity.http.HttpConstants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +26,11 @@ public class HttpWorker extends DownloadWorker {
     private static final Logger logger = LogManager.getLogger(HttpWorker.class);
 
     public HttpWorker(DownloadSeed seed) throws IOException {
-        super(seed, false);
+        this(seed, false);
+    }
+
+    public HttpWorker(DownloadSeed seed, boolean isSubTask) throws IOException {
+        super(seed, isSubTask);
     }
 
     public HttpWorker(DownloadSeed seed, CountDownLatch countDownLatch, Semaphore semaphore, DownloadWorker parentWorker, boolean isSubTask) throws IOException {
@@ -57,7 +62,12 @@ public class HttpWorker extends DownloadWorker {
             semaphore = new Semaphore(info.threadNum);
             for (int i = 0; i < info.threadNum; i++) {
                 String subName = seed.getLocalName() + "_" + i;
-                DownloadSeed subSeed = new DownloadSeed(seed.getUrl(), seed.getLocalPath(), subName, true);
+                HttpDownloadSeed subSeed = new HttpDownloadSeed(seed.getUrl(), seed.getLocalPath(), subName, true);
+                // TODO 此处应使用属性拷贝
+                final HttpDownloadSeed httpDownloadSeed = (HttpDownloadSeed) seed;
+                subSeed.setHeaders(httpDownloadSeed.getHeaders());
+                subSeed.setCookies(httpDownloadSeed.getCookies());
+
                 HttpWorker httpWorker = new HttpWorker(subSeed, masterCountDownLatch, semaphore, this, true);
                 httpWorker.info.fileSize = info.fileSize;  // 子任务的文件大小，设为和父任务相同
                 httpWorker.info.downloadStart = i == 0 ? 0 : (subLen * i) + 1;
@@ -86,7 +96,7 @@ public class HttpWorker extends DownloadWorker {
             return;
         }
 
-        final HttpClient httpClient = HttpClient.createDefault();
+        final HttpClient httpClient = createHttpClient();
         String start = String.valueOf(info.downloadStart + info.downloadSum);
         String end = info.downloadEnd == 0 ? "" : String.valueOf(info.downloadEnd);
         httpClient.addHeader("Range", "bytes=" + start + "-" + end);
@@ -107,12 +117,25 @@ public class HttpWorker extends DownloadWorker {
     }
 
     /**
+     * 创建HttpClient
+     */
+    protected HttpClient createHttpClient() {
+        final HttpClient httpClient = HttpClient.createDefault();
+
+        final Map<String, String> headers = ((HttpDownloadSeed) this.seed).getHeaders();
+        if (!ObjectUtils.isEmpty(headers)) {
+            httpClient.setHeaders(headers);
+        }
+        return httpClient;
+    }
+
+    /**
      * 检查是否支持多线程下载，并设置文件长度
      */
     private boolean checkAndSetLen(String url) throws IOException {
         boolean support = false;
         try (
-                final HttpClient httpClient = HttpClient.createDefault()
+                final HttpClient httpClient = createHttpClient();
         ) {
             httpClient.addHeader("Range", "bytes=1-");
             httpClient.doGetAsStream(url);

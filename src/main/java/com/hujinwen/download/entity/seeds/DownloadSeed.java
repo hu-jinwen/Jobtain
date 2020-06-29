@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * Created by joe on 2019/2/1
@@ -34,30 +33,16 @@ public class DownloadSeed {
     /**
      * 是否是sub task
      */
-    private boolean subTaskSeed;
-
-    /**
-     * params
-     */
-    private Map<String, Object> params;
+    private final boolean subTaskSeed;
 
 
     public DownloadSeed(String url, String localPath, String localName) {
-        this(url, null, localPath, localName, false);
+        this(url, localPath, localName, false);
     }
 
     public DownloadSeed(String url, String localPath, String localName, boolean subTaskSeed) {
-        this(url, null, localPath, localName, subTaskSeed);
-    }
-
-    public DownloadSeed(String url, Map<String, Object> params, String localPath, String localName) {
-        this(url, params, localPath, localName, false);
-    }
-
-    public DownloadSeed(String url, Map<String, Object> params, String localPath, String localName, boolean subTaskSeed) {
         try {
             this.subTaskSeed = subTaskSeed;
-            this.params = params;
             this.url = url;
             this.localPath = FileUtils.checkAndMkdirs(localPath).getPath();
             this.localName = makeFilename(localName);
@@ -116,11 +101,4 @@ public class DownloadSeed {
         this.localName = localName;
     }
 
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
-    }
 }

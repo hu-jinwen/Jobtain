@@ -1,9 +1,7 @@
 package com.hujinwen.download.core;
 
 
-import com.hujinwen.client.HttpClient;
 import com.hujinwen.download.entity.DownloadInfo;
-import com.hujinwen.download.entity.ParamEntry;
 import com.hujinwen.download.entity.exceptions.TooManyRequestsException;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
 import com.hujinwen.download.workers.M3u8Worker;
@@ -18,7 +16,6 @@ import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -92,21 +89,6 @@ public abstract class DownloadWorker extends Thread {
     protected abstract void init() throws IOException;
 
     protected abstract void download() throws IOException, InterruptedException, TooManyRequestsException, URISyntaxException;
-
-    /**
-     * 创建FetchWeb
-     */
-    @SuppressWarnings("unchecked")
-    protected HttpClient createFetchWeb() {
-        final HttpClient httpClient = HttpClient.createDefault();
-
-        Map<String, Object> params = this.seed.getParams();
-        if (!ObjectUtils.isEmpty(params) && params.containsKey(ParamEntry.HEADERS)) {
-
-            httpClient.setHeaders((Map<String, String>) params.get(ParamEntry.HEADERS));
-        }
-        return httpClient;
-    }
 
     @Override
     public void run() {

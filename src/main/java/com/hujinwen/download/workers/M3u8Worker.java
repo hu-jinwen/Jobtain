@@ -25,7 +25,7 @@ import java.util.concurrent.Semaphore;
  * <p>
  * m3u8 download worker
  */
-public class M3u8Worker extends DownloadWorker {
+public class M3u8Worker extends HttpWorker {
     private static final Logger logger = LogManager.getLogger(M3u8Worker.class);
 
     public M3u8Worker(DownloadSeed seed) throws IOException {
@@ -47,11 +47,18 @@ public class M3u8Worker extends DownloadWorker {
             return;
         }
         M3u8DownloadSeed seed = (M3u8DownloadSeed) this.seed;
-        final HttpClient httpClient = HttpClient.createDefault();
+        String content;
+        String redirectUrl;
+        try (
+                final HttpClient httpClient = createHttpClient();
+        ) {
+            content = httpClient.doGetAsStr(seed.getUrl());
+            redirectUrl = httpClient.getLastRedirectUrl();
+        }
 
-        String content = httpClient.doGetAsStr(seed.getUrl());
-        String redirectUrl = httpClient.getLastRedirectUrl();
-        if (!StringUtils.isBlank(redirectUrl)) seed.setUrl(redirectUrl);
+        if (!StringUtils.isBlank(redirectUrl)) {
+            seed.setUrl(redirectUrl);
+        }
         if (StringUtils.isBlank(content)) {
             throw new RuntimeException("M3u8 download worker initialize failed! the response content is empty.");
         }
@@ -172,7 +179,7 @@ public class M3u8Worker extends DownloadWorker {
             int err_count = 0;
             while (err_count < DownloadInit.RETRY_TIMES) {
                 try (
-                        final HttpClient httpClient = HttpClient.createDefault()
+                        final HttpClient httpClient = createHttpClient();
                 ) {
                     InputStream inputStream = httpClient.doGetAsStream(egg);
                     if (inputStream == null) {

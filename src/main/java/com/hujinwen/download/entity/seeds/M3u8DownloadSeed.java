@@ -6,12 +6,12 @@ import java.util.List;
 /**
  * Created by joe on 2019/2/19
  */
-public class M3u8DownloadSeed extends DownloadSeed {
+public class M3u8DownloadSeed extends HttpDownloadSeed {
 
     public final List<String> eggs = new ArrayList<>();
 
     public M3u8DownloadSeed(DownloadSeed seed) {
-        super(seed.getUrl(), seed.getParams(), seed.getLocalPath(), seed.getLocalName());
+        super(seed.getUrl(), seed.getLocalPath(), seed.getLocalName());
     }
 
     public M3u8DownloadSeed(String url, String localPath, String localName) {
