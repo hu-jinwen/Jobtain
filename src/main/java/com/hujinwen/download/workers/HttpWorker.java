@@ -140,7 +140,7 @@ public class HttpWorker extends DownloadWorker {
             httpClient.addHeader("Range", "bytes=1-");
             httpClient.doGetAsStream(url);
             Map<String, String> respHeaders = httpClient.getRespHeaders();
-            if (respHeaders.containsKey(HttpConstants.CONTENT_RANGE)) {
+            if (respHeaders.containsKey(HttpConstants.CONTENT_RANGE)) {  // FIXME 此处的判断怪怪的
                 String value = respHeaders.get(HttpConstants.CONTENT_RANGE);
                 info.fileSize = Long.parseLong(value.substring(value.lastIndexOf("/") + 1));
                 support = true;

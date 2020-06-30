@@ -1,7 +1,6 @@
 package com.hujinwen.download;
 
 import com.hujinwen.download.core.DownloadWorker;
-import com.hujinwen.download.entity.seeds.DownloadSeed;
 import com.hujinwen.download.entity.seeds.HttpDownloadSeed;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,10 @@ class DownloadManagerTest {
 
     @Test
     void test() throws IOException, InterruptedException {
-        Map<String, String> headers = new HashMap<String, String>(){{
+        //设置https协议访问
+        System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
+
+        Map<String, String> headers = new HashMap<String, String>() {{
             put("Accept", "*/*");
             put("Origin", "https://www.bilibili.com");
             put("Accept-Language", "en-us");
