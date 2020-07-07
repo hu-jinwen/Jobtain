@@ -5,7 +5,7 @@ import com.hujinwen.download.core.DownloadWorker;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
 import com.hujinwen.download.entity.seeds.HttpDownloadSeed;
 import com.hujinwen.entity.http.HttpConstants;
-import org.apache.commons.lang3.ObjectUtils;
+import com.hujinwen.utils.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -145,11 +145,9 @@ public class HttpWorker extends DownloadWorker {
                 info.fileSize = Long.parseLong(value.substring(value.lastIndexOf("/") + 1));
                 support = true;
             } else {
-                info.fileSize = Long.parseLong(respHeaders.get(HttpConstants.CONTENT_RANGE));
+                info.fileSize = Long.parseLong(respHeaders.get(HttpConstants.CONTENT_LENGTH));
             }
-        }/* catch (URISyntaxException e) {
-            logger.error(e.getMessage(), e);
-        }*/
+        }
         return support;
     }
 

@@ -4,10 +4,7 @@ import com.hujinwen.download.core.DownloadInit;
 import com.hujinwen.utils.ArrayUtils;
 import com.hujinwen.utils.ConvertUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 
 /**
  * Created by joe on 2019/2/20
@@ -59,7 +56,8 @@ public class DownloadInfo {
 
         if (file.exists()) {
             try (
-                    FileInputStream inputStream = new FileInputStream(file)
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    final BufferedInputStream inputStream = new BufferedInputStream(fileInputStream)
             ) {
                 byte[] bytes = new byte[48];
                 if (inputStream.read(bytes) == bytes.length) {

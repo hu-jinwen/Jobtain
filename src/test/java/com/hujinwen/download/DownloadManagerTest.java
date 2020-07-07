@@ -42,4 +42,20 @@ class DownloadManagerTest {
         }
 
     }
+
+    @Test
+    void war3Download() throws IOException, InterruptedException {
+        String url = "http://dldir1.qq.com/qqfile/QQforMac/QQ_6.6.7.dmg";
+        String localPath = "/Users/hujinwen/Desktop/Download";
+        String localName = "";
+
+        final HttpDownloadSeed downloadSeed = new HttpDownloadSeed(url, localPath, localName);
+
+        final DownloadWorker worker = DownloadManager.download(downloadSeed, false);
+        while (!worker.isFinish()) {
+            logger.debug("progress -> {}%, speed -> {}kb/s", worker.getProgress() * 100, worker.getSpeed());
+            Thread.sleep(1000);
+        }
+    }
+
 }

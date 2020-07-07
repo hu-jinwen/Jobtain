@@ -38,7 +38,7 @@ public class DownloadManager {
      * @param sync         下载是否同步,true 为同步， false 为异步
      */
     public static DownloadWorker download(DownloadSeed downloadSeed, boolean sync) throws IOException {
-        preprocess(downloadSeed);
+        pretreatedSeed(downloadSeed);
         DownloadWorker worker = WORKER_FACTORY.getWorker(downloadSeed);
         if (sync) {
             worker.run();
@@ -76,6 +76,7 @@ public class DownloadManager {
 
     /**
      * 查找可用的 worker factory
+     * 优先使用配置文件中配置的，其次使用默认的
      */
     private static WorkerFactory findFactory() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         WorkerFactory factory;
@@ -90,7 +91,7 @@ public class DownloadManager {
     /**
      * 种子预处理
      */
-    private static void preprocess(DownloadSeed downloadSeed) throws UnsupportedEncodingException {
+    private static void pretreatedSeed(DownloadSeed downloadSeed) throws UnsupportedEncodingException {
         String url = downloadSeed.getUrl();
         if (url.startsWith("thunder://")) {
             String base64Str = url.substring(url.indexOf("//") + 2);

@@ -96,7 +96,13 @@ public abstract class DownloadWorker extends Thread {
         int err_count = 0;
         while (err_count++ < DownloadInit.RETRY_TIMES) {
             try {
-                RandomAccessFile outputTemp = new RandomAccessFile(seed.getLocalPath() + "/" + seed.getLocalName() + ".temp", "rw");
+                final File tempFile = new File(seed.getLocalPath() + "/" + seed.getLocalName() + ".temp");
+                // 处理先下载完成的子任务重复下载的问题
+                if (!tempFile.exists() && new File(seed.getLocalPath() + "/" + seed.getLocalName()).exists()) {
+                    info.downloadSum = info.downloadEnd - info.downloadStart + 1;
+                    break;
+                }
+                RandomAccessFile outputTemp = new RandomAccessFile(tempFile, "rw");
                 info.saveTemp(outputTemp);
                 outputTemp.close();
 
@@ -190,8 +196,7 @@ public abstract class DownloadWorker extends Thread {
             }
 
             if (info.downloadSum != info.fileSize) {
-                logger.error("Download failed! The downloaded length does't equals the total length!\turl -> "
-                        + seed.getUrl() + "\tpath -> " + seed.getLocalPath() + "/" + seed.getLocalName());
+                logger.error("Download failed! The downloaded length does't equals the total length!\turl -> {}\tpath -> {}/{}", seed.getUrl(), seed.getLocalPath(), seed.getLocalName());
 //                downloadFailed = true;
                 return;
             }
@@ -216,14 +221,15 @@ public abstract class DownloadWorker extends Thread {
      * 下载完成合并文件
      */
     private void mergeFile() {
-        logger.info("File merging... -> " + seed.getLocalPath() + "/" + seed.getLocalName());
+        logger.info("File merging... -> {}/{}", seed.getLocalPath(), seed.getLocalName());
         if (info.threadNum <= 1 || ObjectUtils.isEmpty(subTaskList)) {
             return;
         }
 
         File file = new File(seed.getLocalPath() + "/" + seed.getLocalName());
         try (
-                FileOutputStream outputFile = new FileOutputStream(file)
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                final BufferedOutputStream outputStream = new BufferedOutputStream(fileOutputStream)
         ) {
             for (int i = 0; i < info.threadNum; i++) {
                 File tempFile = new File(file.getPath() + "_" + i);
@@ -231,14 +237,14 @@ public abstract class DownloadWorker extends Thread {
                 byte[] buffer = new byte[1024];
                 int read;
                 while ((read = inputStream.read(buffer)) != -1) {
-                    outputFile.write(buffer, 0, read);
+                    outputStream.write(buffer, 0, read);
                 }
                 inputStream.close();
                 FileUtils.deleteFile(tempFile);
             }
-            outputFile.flush();
+            outputStream.flush();
         } catch (IOException ioe) {
-            logger.error("+++++>> File merge failed! file -> " + file.getPath(), ioe);
+            logger.error("+++++>> File merge failed! file -> {}", file.getPath(), ioe);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.hujinwen.download.core;
 
+import com.hujinwen.download.entity.exceptions.DownloadWorkerInitException;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
 import com.hujinwen.download.entity.seeds.FtpDownloadSeed;
 import com.hujinwen.download.entity.seeds.M3u8DownloadSeed;
@@ -52,7 +53,10 @@ public abstract class WorkerFactory {
                 logger.warn("Can not find useful downloadWorker, Please check the download url -> " + url);
             }
         } catch (IOException e) {
-            logger.error("Download worker initialize failed! url -> " + url, e);
+            throw new DownloadWorkerInitException("Download worker initialize failed! url -> " + url, e);
+        }
+        if (worker == null) {
+            throw new DownloadWorkerInitException("Find download worker null!");
         }
         return worker;
     }
