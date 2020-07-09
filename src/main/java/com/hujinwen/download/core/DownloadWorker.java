@@ -98,7 +98,7 @@ public abstract class DownloadWorker extends Thread {
             try {
                 final File tempFile = new File(seed.getLocalPath() + "/" + seed.getLocalName() + ".temp");
                 // 处理先下载完成的子任务重复下载的问题
-                if (!tempFile.exists() && new File(seed.getLocalPath() + "/" + seed.getLocalName()).exists()) {
+                if (isSubTask && !tempFile.exists() && new File(seed.getLocalPath() + "/" + seed.getLocalName()).exists()) {
                     info.downloadSum = info.downloadEnd - info.downloadStart + 1;
                     break;
                 }
