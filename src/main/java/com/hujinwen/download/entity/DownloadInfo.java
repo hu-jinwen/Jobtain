@@ -57,20 +57,15 @@ public class DownloadInfo {
         if (file.exists()) {
             try (
                     FileInputStream fileInputStream = new FileInputStream(file);
-                    final BufferedInputStream inputStream = new BufferedInputStream(fileInputStream)
+                    final DataInputStream dataInputStream = new DataInputStream(fileInputStream)
             ) {
-                byte[] bytes = new byte[48];
-                if (inputStream.read(bytes) == bytes.length) {
-                    threadNum = ConvertUtils.bytesToInt(ArrayUtils.subarray(bytes, 0, 4));
-                    downloadStart = ConvertUtils.bytesToInt(ArrayUtils.subarray(bytes, 4, 12));
-                    downloadEnd = ConvertUtils.bytesToInt(ArrayUtils.subarray(bytes, 12, 20));
-                    eggIndex = ConvertUtils.bytesToInt(ArrayUtils.subarray(bytes, 20, 24));
-                    position = ConvertUtils.bytesToLong(ArrayUtils.subarray(bytes, 24, 32));
-                    downloadSum = ConvertUtils.bytesToLong(ArrayUtils.subarray(bytes, 32, 40));
-                    fileSize = ConvertUtils.bytesToLong(ArrayUtils.subarray(bytes, 40, bytes.length));  // TODO
-                } else {
-                    throw new IOException("Temp file initialize failed!");
-                }
+                threadNum = dataInputStream.readInt();
+                downloadStart = dataInputStream.readLong();
+                downloadEnd = dataInputStream.readLong();
+                eggIndex = dataInputStream.readInt();
+                position = dataInputStream.readLong();
+                downloadSum = dataInputStream.readLong();
+                fileSize = dataInputStream.readLong();
             }
         }
     }
@@ -79,6 +74,7 @@ public class DownloadInfo {
      * 保存缓存
      */
     public void saveTemp(RandomAccessFile outputTemp) throws IOException {
+        // byte合并一次性写入效率高10倍
         byte[] result = ArrayUtils.union(
                 ConvertUtils.intToBytes(threadNum),
                 ConvertUtils.longToBytes(downloadStart),
@@ -86,7 +82,7 @@ public class DownloadInfo {
                 ConvertUtils.intToBytes(eggIndex),
                 ConvertUtils.longToBytes(position),
                 ConvertUtils.longToBytes(downloadSum),
-                ConvertUtils.longToBytes(fileSize)  // TODO
+                ConvertUtils.longToBytes(fileSize)
         );
         outputTemp.seek(0);
         outputTemp.write(result);
