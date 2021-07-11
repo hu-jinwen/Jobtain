@@ -6,7 +6,7 @@ import com.hujinwen.download.entity.exceptions.TooManyRequestsException;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
 import com.hujinwen.download.workers.M3u8Worker;
 import com.hujinwen.utils.FileUtils;
-import org.apache.commons.lang3.ObjectUtils;
+import com.hujinwen.utils.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

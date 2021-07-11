@@ -55,7 +55,7 @@ public class DownloadSeed {
      * 获取文件名
      */
     private String makeFilename(String localName) throws DuplicateFileException {
-        String filename = StringUtils.isBlank(localName) ? UrlUtils.extraFilename(url) : localName;
+        String filename = StringUtils.isBlank(localName) ? "Hello" : localName;
 
         if (subTaskSeed || !new File(localPath + "/" + filename).exists() || !DownloadInit.AUTO_RENAME) {
             return filename;

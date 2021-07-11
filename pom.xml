@@ -20,8 +20,11 @@
         </dependency>
         <dependency>
             <groupId>com.hujinwen</groupId>
-            <artifactId>Jtils</artifactId>
-            <version>0.5.1</version>
+            <artifactId>Jokit</artifactId>
+            <version>0.6.1</version>
+            <!-- 不可以忘记指定scope -->
+            <scope>system</scope>
+            <systemPath>/Users/hujinwen/codes/hu-jinwen/unidbg_duapp/lib/Jokit-0.6.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>

@@ -1,6 +1,6 @@
 package com.hujinwen.download.workers;
 
-import com.hujinwen.client.HttpClient;
+import com.hujinwen.client.http.HttpClient;
 import com.hujinwen.download.core.DownloadWorker;
 import com.hujinwen.download.entity.seeds.DownloadSeed;
 import com.hujinwen.download.entity.seeds.HttpDownloadSeed;

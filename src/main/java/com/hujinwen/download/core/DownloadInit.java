@@ -1,6 +1,6 @@
 package com.hujinwen.download.core;
 
-import com.hujinwen.client.HttpClient;
+import com.hujinwen.client.http.HttpClient;
 import com.hujinwen.download.entity.ConfEntry;
 import com.hujinwen.utils.DateUtils;
 import org.apache.commons.lang3.StringUtils;
